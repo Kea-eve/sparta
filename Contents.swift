@@ -1,53 +1,81 @@
 import UIKit
 
-class Calculator {
-    func Calculator(op: String, firstNumber: Double, secondNumber: Double) -> Double? {
-        switch op{
-        case "+":
-            return firstNumber + secondNumber
-        case "-":
-            return firstNumber - secondNumber
-        case "*":
-            return firstNumber * secondNumber
-        case "/":
-            if secondNumber == 0 {
-                print("0으로 나눌 수 없습니다.")
-                return nil
-            }
-            return firstNumber / secondNumber
-          
-        case "%":
-            if secondNumber == 0 {
-                print("오류: 0으로 나머지를 계산할 수 없습니다.")
-                return nil
-            }
-            return firstNumber.truncatingRemainder(dividingBy: secondNumber)
-        default:
-            print("오류: 지원하지 않는 연산자입니다.")
-            return nil
-        }
+protocol AbstractOperation {
+    func operation(_ a: Double, _ b: Double) -> Double
+}
+
+class AddOperation: AbstractOperation {
+    func operation(_ a: Double, _ b: Double) -> Double {
+        return a + b
     }
 }
 
-let Calc = Calculator()
+class SubtractOperation: AbstractOperation {
+    func operation(_ a: Double, _ b: Double) -> Double {
+        return a - b
+    }
+}
 
-// 더하기
-if let plus = Calc.Calculator(op: "+", firstNumber: 10, secondNumber: 100){
-    let cleanplus = "\(plus)".replacingOccurrences(of: "\n", with: "")
+class MultiplyOperation: AbstractOperation {
+    func operation(_ a: Double, _ b: Double) -> Double {
+        return a * b
+    }
 }
-// 빼기
-if let minus = Calc.Calculator(op: "-", firstNumber: 10, secondNumber: 100){
-    print("10-100 = \(minus)")
+
+class DivideOperation: AbstractOperation {
+    func operation(_ a: Double, _ b: Double) -> Double {
+        if b == 0 {
+            print("0으로 나눌 수 없습니다.")
+            return 0
+        }
+        return a / b
+    }
 }
-// 곱하기a
-if let x = Calc.Calculator(op: "*", firstNumber: 10, secondNumber: 100){
-    print("10*100 = \(x)")
+
+class ModuloOperation: AbstractOperation {
+    func operation(_ a: Double, _ b: Double) -> Double {
+        if b == 0 {
+            print("0으로 나눌 수 없습니다.")
+            return 0
+        }
+        return a.truncatingRemainder(dividingBy: b)
+    }
 }
-//나누기
-if let divide = Calc.Calculator(op: "/", firstNumber: 10, secondNumber: 100){
-    print("10/100 = \(divide)")
+
+class Calculator {
+    private var operation: AbstractOperation?
+    
+    init() {}
+    
+    init(operation: AbstractOperation) {
+        self.operation = operation
+    }
+    
+    func setOperation(_ operation: AbstractOperation) {
+        self.operation = operation
+    }
+    
+    func calculate(_ a: Double, _ b: Double) -> Double {
+        guard let operation = operation else {
+            print("연산이 설정되지 않았습니다.")
+            return 0
+        }
+        return operation.operation(a, b)
+    }
 }
-if let percent = Calc.Calculator(op: "%", firstNumber: 10, secondNumber: 100){
-    print("10%100 = \(percent)")
-}
+
+let calc1 = Calculator(operation: AddOperation())
+print("10 + 100 = \(calc1.calculate(10, 100))", terminator: "")
+
+let calc2 = Calculator(operation: SubtractOperation())
+print("10 - 100 = \(calc2.calculate(10, 100))", terminator: "")
+
+let calc3 = Calculator(operation: MultiplyOperation())
+print("10 * 100 = \(calc3.calculate(10, 100))", terminator: "")
+
+let calc4 = Calculator(operation: DivideOperation())
+print("10 / 100 = \(calc4.calculate(10, 100))", terminator: "")
+
+let calc5 = Calculator(operation: ModuloOperation())
+print("10 % 100 = \(calc5.calculate(10, 100))", terminator: "")
 
